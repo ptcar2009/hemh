@@ -1,5 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Define Article %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[twocolumn]{article}
+\documentclass{article}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Using Packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -7,10 +6,11 @@
 \usepackage{graphicx}
 \usepackage{amssymb}
 \usepackage{amsmath}
+\usepackage{hyperref}
 \usepackage{amsthm}
 \usepackage{empheq}
-\usepackage{algpseudocode}
 \usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage{mdframed}
 \usepackage{booktabs}
 \usepackage{lipsum}
@@ -45,13 +45,14 @@
 \newtheoremstyle{mytheoremstyle}{3pt}{3pt}{\normalfont}{0cm}{\rmfamily\bfseries}{}{1em}{{\color{black}\thmname{#1}~\thmnumber{#2}}\thmnote{,--,#3}}
 \newtheoremstyle{myproblemstyle}{3pt}{3pt}{\normalfont}{0cm}{\rmfamily\bfseries}{}{1em}{{\color{black}\thmname{#1}~\thmnumber{#2}}\thmnote{,--,#3}}
 \theoremstyle{mytheoremstyle}
-\newmdtheoremenv[linewidth=1pt,backgroundcolor=shallowGreen,linecolor=deepGreen,leftmargin=0pt,innerleftmargin=20pt,innerrightmargin=20pt,]{theorem}{Theorem}[section]
+\newmdtheoremenv[linewidth=1pt,backgroundcolor=shallowGreen,linecolor=deepGreen,leftmargin=0pt,innerleftmargin=20pt,innerrightmargin=20pt,]{theorem}{Teorema}[section]
 \theoremstyle{mytheoremstyle}
 \newmdtheoremenv[linewidth=1pt,backgroundcolor=shallowBlue,linecolor=deepBlue,leftmargin=0pt,innerleftmargin=20pt,innerrightmargin=20pt,]{definition}{Definição}[section]
 \theoremstyle{myproblemstyle}
 \newmdtheoremenv[linecolor=black,leftmargin=0pt,innerleftmargin=10pt,innerrightmargin=10pt,]{problem}{Problem}[section]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\floatname{algorithm}{Algoritmo}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Title & Author %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Resumo Heurísticas Construtivas}
@@ -97,16 +98,50 @@
             O problema pode ser resolvido de forma recursiva, se imaginarmos cada corte como dois subproblemas,
             onde temos que maximizar os cortes na barra da esqueda e na barra da direita. Um algoritmo recursivo
             para resolver esse problema é escrito a seguir.
-            \begin{algorithm}
+
+            \begin{algorithm}[ht]
+                \caption{Cut-Rod($p$, $n$)}
+                \label{alg:cut_rec}
+                \If {}
+                    \Return 0
+                \EndIf
+                \State $q \gets -\infty$
+                \For{$i\gets1$ \textbf{to} $n$}
+                    \State $q \gets \max(q, p[i] + \text{Cut-Rod}(p, n - i))$
+                \EndFor
 
             \end{algorithm}
             % subsection 15.1 (end)
 
-        % section Capítulo 15 (end)
+            Ao construirmos a árvore de chamads do Algoritmo~\ref{alg:cut_rec}, podemos perceber que subproblemas são resolvidos
+            diversas vezes, o que gera um trabalho desnecessário, aumentando a complexidade do algoritmo, que pode ser deduzida em
+            $O(2^n)$.
+
+            Podemos modificar esse algoritmo para aplicar a programação dinâmica no mesmo, tanto de forma \textit{bottom up} quanto
+            \textit{top down}. Para a foma \textit{top down}, utilizamos o conceito de memoização para guardar os resultados dos subproblemas,
+            consultando se esse resultado já existe antes de realizar realmente a operação. Para a forma \textit{bottom up}, utilizamos uma tabela
+            para armazenar os resultados parciais dos subproblemas antes de fazer o problema principal.
+
+            Em ambas as maneiras, utilizamos fazemos um \textit{tradeoff} entre memória e tempo de execução, armazenando informação
+            a fim de diminuir o tempo total de execução do algoritmo.
+
+            A complexidade de tempo de ambos os algoritmos, sendo ele memoizado ou por tabela, resulta em $O(n^2)$, melhorando muito da solução recursiva ingênua.
+
+            \subsubsection{Reconstrução de solução} % (fold)
+            \label{ssub:Reconstrução de solução}
+
+
+
+            % subsubsection subsubsection name (end)
+
+
+
+    % section Capítulo 15 (end)
 
 
 
 
     \bibliography{bib.bib}{}
     \bibliographystyle{babunsrt}
+
 \end{document}

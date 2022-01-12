@@ -1,0 +1,201 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Define Article %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[12pt]{article}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Using Packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{authblk}
+\usepackage{algorithm,algorithmicx,algpseudocode}
+\usepackage{tikz}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage[brazil]{babel}
+\usepackage{babelbib}
+\usepackage{caption}
+\usepackage{subcaption}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Other Settings
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% Page Setting %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\geometry{a4paper}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% Define some useful colors %%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Title & Author %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Heurísticas e metaheurísticas aplicadas ao design de placas de circuito integrado}
+\author{Pedro Tavares de Carvalho}
+\affil{DCC - UFMG}
+\date{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sloppy
+
+\begin{document}
+    \maketitle
+    \abstract{
+        O projeto de placas de circuito integrado é um processo longo e preciso, que requer muita experiência para se
+        otimizar o seu tamanho e a quantidade de materiais utilizados ainda sendo um design de fácil produção
+        industrial.
+
+        Esse artigo irá discutir a aplicação da Busca em Vizinhanças Variadas (VND) na otimização da colocação de componentes
+        nas placas de circuitos integrados.
+
+    }
+    \newpage
+    \section{Introdução} % (fold)
+    \label{sec:Introdução}
+        Placas de circuito integrado são famosas por possuírem um design complexo e intricado, que requer experiência e paciência,
+        sendo um bom profissional da área extremamente bem pago e valioso. Existem diversas ferramentas para se auxiliar nesse projeto,
+        incluindo interfaces de design~\cite{orcad} e ferramentas de inteligência artificial~\cite{PCBAI}.
+
+        Esses métodos são caros e pouco acessíveis para empresas em geral, o que torna o processo de design de \textit{Printed Circuit Boards} (PCBs) demorado e caro. O
+        objetivo desse artigo é explorar outras técnicas computacionalmente mais baratas para a otimização de placas de circuito em
+        termos do tamanho das mesmas.
+
+        \subsection{Modelagem} % (fold)
+        \label{sub:Modelagem}
+        A placa será modelada como um retângulo, e os componentes serão representados por um conjunto de áreas que não podem se interceptar. A modelagem pode ser vista na Figura~\ref{fig:m},
+        sendo a primeira parte uma instância do problema e a segunda parte uma possível solução.
+
+        \begin{figure}[H]
+            \centering
+            \begin{subfigure}[b]{0.5\textwidth}
+                \centering
+                \begin{tikzpicture}
+                    \draw (0,0) rectangle ++(4,2.5);
+                    \draw[step=0.25cm,gray,very thin] (0, 0) grid (4,2.5);
+                    \draw[red] (-2, 2) rectangle ++(0.2, 0.5);
+                    \draw[red] (-2, 1) rectangle ++(0.8, 0.8);
+                    \draw[red] (-2, 0) rectangle ++(1, 0.8);
+                \end{tikzpicture}
+                \caption{Instância do problema de escalonamento de PCB}
+            \end{subfigure}
+            \begin{subfigure}[b]{0.5\textwidth}
+                \centering
+                \begin{tikzpicture}
+                    \draw (0,0) rectangle ++(2,0.8);
+                    \draw[<->] (-0.2, 0) -- ++(0, 0.8) node[left, midway] {l};
+                    \draw[<->] (-0, -0.2) -- ++(2, 0) node[below, midway] {m};
+                    \draw[step=0.25cm,gray,very thin] (0,0) grid ++(2,0.8);
+                    \draw[red] (0,0) rectangle ++(1, 0.8);
+                    \draw[red] (1,0) rectangle ++(0.8, 0.8);
+                    \draw[red] (1.8, 0) rectangle ++(0.2, 0.5);
+
+                \end{tikzpicture}
+                \caption{Instância resolvida do problema de escalonamento de PCB}
+            \end{subfigure}
+            \caption{Modelagem do problema de escalonamento de PCB}
+            \label{fig:m}
+        \end{figure}
+
+        Com essa modelagem, o objetivo do problema é minimizar a área $m \times l$ da placa de circuitos final gerada pelo algoritmo. Esse problema
+        é chamado de Problema de Empacotamento Ótimo Planar, com algumas limitações, e é provado NP-difícil ~\cite{FOWLER1981133}.
+
+    % section Introdução (end)
+
+    \section{Trabalhos Relacionados} % (fold)
+    \label{sec:Trabalhos Relacionados}
+    Existem diversos artigos sobre empacotamento retangular planar ótimo, porém a maioria destes são dedicadas a algoritmos exatos e otimizações dos
+    mesmos.
+
+    \begin{description}
+        \item[A new heuristic algorithm for rectangle packing ~\cite{HUANG20073270}] Descreve uma heurística para um problema similar onde
+            você possui um conjunto de retângulos e tenta empacotá-los em um retângulo de tamanho definido.
+        \item[Optimal Rectangle Packing: An absolute placement approach ~\cite{DBLP:journals/corr/HuangK14}] Descreve um algoritmo baseado
+            em posicionamento absoluto para resolver o problema precisamente. Conseguiu uma eficiencia muito melhor do que a literatura até o momento.
+        \item[A genetic algorithm for a 2D industrial packing problem ~\cite{HOPPER1999375}] Descreve um algoritmo genético para a resolução
+            deste problema.
+        \item[Module placement on BSG-structure and IC layout applications ~\cite{10.5555/244522.244865}] Utiliza simmulated annealing em conjunto
+            a uma estrutura de dados baseada em grade para resolver aproximadamente o problema, conseguindo bons resultados.
+        \item[An O-tree representation of non-slicing floorplan and its applications ~\cite{10.1145/309847.309928}] Propõe uma representação do problema como uma árvore ordenada.
+    \end{description}
+
+    A literatura do problema é muito ampla, pois é muito utilizada em programas como CAD e de automação industrial, dado que o problema é aplicável
+    em diversas áreas.
+    % section Trabalhos Relacionados (end)
+
+    \section{Metodologia} % (fold)
+    \label{sec:Metodologia}
+        Para desenvolver essas heurísticas, modelaremos uma placa de circuitos com algumas limitações. O espaço para se colocar os componentes
+        será definido de forma discreta, utilizando uma grade de possíveis colocações dos mesmos, e os ângulos em que estes podem ser colocados
+        também serão limitados a um conjunto específico de ângulos.
+
+        % subsection Modelagem (end)
+        \subsection{Heurísticas e metaheurísticas} % (fold)
+        \label{sub:Heurísticas e metaheurísticas}
+            O VND será implementado com vizinhanças de translação de um item, a troca de dois itens e a rotação em 90 graus de um item. Ele pode ser
+            descrito com Algoritmo~\ref{algo:VND}.
+            \begin{algorithm}
+                \floatname{algorithm}{Algoritmo}
+                \algrenewcommand\algorithmicrequire{\textbf{Entrada }}
+                \algrenewcommand\algorithmicensure{\textbf{Saída }}
+                \caption{Heurística VND}
+                \label{algo:VND}
+                \begin{algorithmic}[1]
+                    \Require {Conjunto de retângulos a serem organizados}
+                    \Ensure {Organização desses retângulos de forma a minimizar a área do bounding box}
+
+                    \State $s \gets$ solução válida inicial
+                    \State $V \gets$ conjunto de vizinhanças $V_k, k < k_{max}$
+                    \While {$k < k_{max}$}
+                        \State $s' \gets $ MelhorVizinho($V_k, x$)
+                        \If{BoudingBox($s'$) $<$ BoundingBox($s$)}
+                            \State $s \gets s'$
+                            \State $k \gets 1$0
+                        \Else
+                            \State $k \gets k + 1$
+                        \EndIf
+                    \EndWhile
+                \end{algorithmic}
+            \end{algorithm}
+
+
+        \subsection{Métricas} % (fold)
+        \label{sub:Métricas}
+            Serão feitas tabelas de qualidade por tempo das heurísticas em questão, além de gráficos de qualidade por complexidade de
+            instância\footnote{As instâncias serão geradas aleatoriamente}.
+
+            Serão feitos boxplots comparativos de tempo de execução e qualidade das heurísticas.
+
+            Além da comparação das heurísticas, será feita uma comparação de densidade de fragmentação das instâncias, onde mais ou menos
+            pontos serão considerados para a colocação dos componentes. Nessa comparação existirão gráficos de número de coordenadas por tempo e por qualidade.
+            Será utilizada a melhor heurística dentre as observadas para servir de base para essa experimentação.
+        % subsection Métricas (end)
+
+    % section Metodologia (end)
+    \section{Cronograma} % (fold)
+        \begin{enumerate}
+            \item Implementação do \textit{framework} - 5 dias
+                \begin{enumerate}
+                    \item Implementação do gerador de instâncias
+                    \item Implementação do avaliador de soluções
+                \end{enumerate}
+
+            \item Implementação das heurísticas - 10 a 15 dias
+                \begin{enumerate}
+                    \item Implementação do VND
+                \end{enumerate}
+
+            \item Avaliação das heurísticas - 7 dias
+                \begin{enumerate}
+                    \item Avaliação de cada heurística e geração dos dados
+                    \item Formatação das tabelas
+                    \item Geração dos gráficos
+                \end{enumerate}
+
+        \end{enumerate}
+
+
+    \label{sec:Cronograma}
+
+    % section Cronograma (end)
+
+
+    \bibliographystyle{babunsrt}
+    \bibliography{referencias}
+
+
+\end{document}
